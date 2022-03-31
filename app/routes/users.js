@@ -7,7 +7,7 @@ const UserRouter = new Router({prefix: '/users'});
 const {list, findById, create, update,
     del,login,checkOwner,listFollowing,follow,
     unFollow,listFollowers,checkUserExist,
-    followTopic,unFollowTopic,listFollowingTopics
+    followTopic,unFollowTopic,listFollowingTopics,listQuestions
 } = require('../controllers/users.js')
 
 const  {checkTopicExist} = require('../controllers/topics.js')
@@ -47,6 +47,7 @@ UserRouter.put('/followingTopics/:id', auth,checkTopicExist,followTopic)
 UserRouter.delete('/followingTopics/:id', auth,checkTopicExist,unFollowTopic)
 // 关注的话题列表
 UserRouter.get('/:id/followingTopics', listFollowingTopics)
-
+// 发表的问题列表
+UserRouter.get('/:id/questions', listQuestions)
 
 module.exports = UserRouter;

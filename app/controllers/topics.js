@@ -1,4 +1,5 @@
 const Topics = require('../models/topics.js')
+const Questions = require('../models/questions')
 
 class TopicsCtl {
     async find(ctx) {
@@ -48,6 +49,11 @@ class TopicsCtl {
             ctx.throw(404,'话题未找到')
         }
         ctx.body =  user
+    }
+
+    // 查找出该话题下的所有问题
+    async  listQuestions(ctx){
+        ctx.body =  await Questions.find({topics: ctx.params.id})
     }
 }
 

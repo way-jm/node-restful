@@ -1,4 +1,5 @@
 const User = require('../models/users.js')
+const Questions = require('../models/questions.js')
 const jsonwebtoken =  require('jsonwebtoken')
 const {secret} = require('../config')
 
@@ -149,6 +150,10 @@ class Users {
     async listFollowers(ctx){
         // 这里其实是包含逻辑，但是mongoose的语法非常灵活，{following:ctx.params.id}也可以表示包含逻辑
         ctx.body =  await User.find({following: ctx.params.id})
+    }
+    // 列出该用户的问题列表
+    async listQuestions(ctx){
+        ctx.body = await Questions.find({questioner: ctx.params.id})
     }
 }
 
