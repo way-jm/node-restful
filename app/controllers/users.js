@@ -13,6 +13,7 @@ class Users {
         const {fields} = ctx.query;
         const selectFields =fields.split(';').filter(f=>f).map(f=>' +' +f).join('')
         const user =  await User.findById(ctx.params.id).select(selectFields)
+            .populate("following location employments.company employments.job educations.school educations.major")
         if(!user){
             ctx.throw(404,'用户未找到')
         }

@@ -5,7 +5,11 @@ class TopicsCtl {
         const {page_size = 10} =  ctx.query;
         const page=Math.max(ctx.query.page * 1,1) -1;
         const pageSize= Math.max(page_size * 1,1);
-        ctx.body = await Topics.find().limit(pageSize).skip(page * pageSize)
+        ctx.body = await Topics
+            // .find({name:/abc/})
+            .find({name:new RegExp(ctx.query.q)})
+            .limit(pageSize)
+            .skip(page * pageSize)
     }
 
     async findById(ctx) {

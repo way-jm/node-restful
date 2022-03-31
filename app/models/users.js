@@ -13,13 +13,13 @@ const userSchema =  new Schema({
     // 一句话介绍自己
     headLine:{type:String},
     // 地址,数组
-    location:{type:[{type:String}],select:false },
+    location:{type:[{type:Schema.Types.ObjectId,ref:"Topic"}],select:false },
     // 工作经历
     employments:{
         type:[
             {
-                company:{type:String},
-                job:{type:String},
+                company:{type:Schema.Types.ObjectId,ref:"Topic"},
+                job:{type:Schema.Types.ObjectId,ref:"Topic"},
             }
         ],select:false
 
@@ -28,8 +28,8 @@ const userSchema =  new Schema({
     educations:{
         type:[
             {
-                school:{type:String},
-                major:{type:String},
+                school:{type:Schema.Types.ObjectId,ref:"Topic"},
+                major:{type:Schema.Types.ObjectId,ref:"Topic"},
                 diploma:{type:Number,enum:[1,2,3,4,5]},
                 entrance_year:{type:Number},
                 graduate_year:{type:Number}
