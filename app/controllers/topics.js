@@ -11,7 +11,13 @@ class TopicsCtl {
             .limit(pageSize)
             .skip(page * pageSize)
     }
-
+    async checkTopicExist(ctx,next){
+        const user =  await Topics.findById(ctx.params.id)
+        if(!user){
+            ctx.throw(404,'话题不存在')
+        }
+        await next()
+    }
     async findById(ctx) {
         // localhost:3000/topics/624320447587f74f053a8d1e?fields=location
         const {fields} = ctx.query;

@@ -6,8 +6,11 @@ const {secret} = require('../config')
 const UserRouter = new Router({prefix: '/users'});
 const {list, findById, create, update,
     del,login,checkOwner,listFollowing,follow,
-    unFollow,listFollowers,checkUserExist
+    unFollow,listFollowers,checkUserExist,
+    followTopic,unFollowTopic,listFollowingTopics
 } = require('../controllers/users.js')
+
+const  {checkTopicExist} = require('../controllers/topics.js')
 
 // 用户认证
 // const auth =  async (ctx,next)=>{
@@ -37,6 +40,13 @@ UserRouter.put('/following/:id', auth,checkUserExist,follow)
 UserRouter.delete('/following/:id', auth,checkUserExist,unFollow)
 // 获取粉丝列表--》用户的关注人列表里面有指定id,代表就是指定人的粉丝
 UserRouter.get('/:id/followers',listFollowers)
+
+// 关注话题
+UserRouter.put('/followingTopics/:id', auth,checkTopicExist,followTopic)
+// 取消关注话题
+UserRouter.delete('/followingTopics/:id', auth,checkTopicExist,unFollowTopic)
+// 关注的话题列表
+UserRouter.get('/:id/followingTopics', listFollowingTopics)
 
 
 module.exports = UserRouter;

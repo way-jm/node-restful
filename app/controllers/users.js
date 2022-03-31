@@ -114,6 +114,37 @@ class Users {
         }
         ctx.status = 204
     }
+
+    // 关注话题
+    async followTopic(ctx){
+        const me =  await User.findById(ctx.state.user._id).select('+followingTopics');
+        if(!me.followingTopics.map(id=>id.toString()).includes(ctx.params.id)){
+            me.followingTopics.push(ctx.params.id)
+            me.save()
+        }
+        ctx.status = 204
+    }
+    // 取消关注话题
+    async unFollowTopic(ctx){
+        const me =  await User.findById(ctx.state.user._id).select('+followingTopics');
+        const index =  me.followingTopics.map(id=>id.toString()).indexOf(ctx.params.id)
+        if(index>-1){
+            me.followingTopics.splice(index,1)
+            me.save()
+        }
+        ctx.status = 204
+    }
+    // 获取关注的话题
+    async listFollowingTopics(ctx){
+        // populate--->从指定字段中把id扩展为具体信息
+        const user =  await User.findById(ctx.params.id)
+            .select('+followingTopics')
+            .populate('followingTopics')
+        if(!user){
+            ctx.throw(404,'用户不存在')
+        }
+        ctx.body = user.followingTopics;
+    }
     // 获取粉丝列表
     async listFollowers(ctx){
         // 这里其实是包含逻辑，但是mongoose的语法非常灵活，{following:ctx.params.id}也可以表示包含逻辑
