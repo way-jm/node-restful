@@ -4,7 +4,10 @@ const jwt = require('koa-jwt')
 const {secret} = require('../config')
 
 const UserRouter = new Router({prefix: '/users'});
-const {list, findById, create, update, del,login,checkOwner} = require('../controllers/users.js')
+const {list, findById, create, update,
+    del,login,checkOwner,listFollowing,follow,
+    unFollow,listFollowers,checkUserExist
+} = require('../controllers/users.js')
 
 // 用户认证
 // const auth =  async (ctx,next)=>{
@@ -26,6 +29,14 @@ UserRouter.post('/', create)
 UserRouter.patch('/:id', auth, checkOwner,update)
 UserRouter.delete('/:id',auth, checkOwner,del)
 UserRouter.post('/login', login)
+// 关注人列表
+UserRouter.get('/:id/following', listFollowing)
+// 关注某人
+UserRouter.put('/following/:id', auth,checkUserExist,follow)
+// 取消关注
+UserRouter.delete('/following/:id', auth,checkUserExist,unFollow)
+// 获取粉丝列表--》用户的关注人列表里面有指定id,代表就是指定人的粉丝
+UserRouter.get('/:id/followers',listFollowers)
 
 
 module.exports = UserRouter;

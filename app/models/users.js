@@ -35,6 +35,11 @@ const userSchema =  new Schema({
                 graduate_year:{type:Number}
             }
         ],select:false
-    }
+    },
+    // 关注者,mongoDB的id类型,对应User 的id引用
+    following:{
+        type:[{type:Schema.Types.ObjectId,ref:'User'}],
+        select:false
+    },
 })
 module.exports = model('User',userSchema)

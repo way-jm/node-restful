@@ -9,6 +9,7 @@ class Users {
 
     async findById(ctx) {
         // 获取字段
+        // localhost:3000/users/624320447587f74f053a8d1e?fields=location
         const {fields} = ctx.query;
         const selectFields =fields.split(';').filter(f=>f).map(f=>' +' +f).join('')
         const user =  await User.findById(ctx.params.id).select(selectFields)
@@ -73,6 +74,49 @@ class Users {
         // 生成签名
         const token = jsonwebtoken.sign({_id,name},secret,{expiresIn: '1d'}, null)
         ctx.body =  {token}
+    }
+    // 关注者
+    async listFollowing(ctx){
+        // populate--->从指定字段中把id扩展为具体信息
+        const user =  await User.findById(ctx.params.id)
+            .select('+following')
+            .populate('following')
+        if(!user){
+            ctx.throw(404,'用户不存在')
+        }
+        ctx.body = user.following;
+    }
+    // 检验用户存在与否的中间件
+    async checkUserExist(ctx,next){
+        const user =  await User.findById(ctx.params.id)
+        if(!user){
+            ctx.throw(404,'用户不存在')
+        }
+        await next()
+    }
+    // 关注某人
+    async follow(ctx){
+        const me =  await User.findById(ctx.state.user._id).select('+following');
+        if(!me.following.map(id=>id.toString()).includes(ctx.params.id)){
+            me.following.push(ctx.params.id)
+            me.save()
+        }
+        ctx.status = 204
+    }
+    // 取消关注
+    async unFollow(ctx){
+        const me =  await User.findById(ctx.state.user._id).select('+following');
+        const index =  me.following.map(id=>id.toString()).indexOf(ctx.params.id)
+        if(index>-1){
+            me.following.splice(index,1)
+            me.save()
+        }
+        ctx.status = 204
+    }
+    // 获取粉丝列表
+    async listFollowers(ctx){
+        // 这里其实是包含逻辑，但是mongoose的语法非常灵活，{following:ctx.params.id}也可以表示包含逻辑
+        ctx.body =  await User.find({following: ctx.params.id})
     }
 }
 
