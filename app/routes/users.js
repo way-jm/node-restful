@@ -7,10 +7,13 @@ const UserRouter = new Router({prefix: '/users'});
 const {list, findById, create, update,
     del,login,checkOwner,listFollowing,follow,
     unFollow,listFollowers,checkUserExist,
-    followTopic,unFollowTopic,listFollowingTopics,listQuestions
+    followTopic,unFollowTopic,listFollowingTopics,listQuestions,
+    likeAnswer,unLikeAnswer,listLikingAnswers,
+    dislikeAnswer,unDislikeAnswer,listDisLikingAnswers
 } = require('../controllers/users.js')
 
 const  {checkTopicExist} = require('../controllers/topics.js')
+const {checkAnswerExist} = require('../controllers/answers')
 
 // 用户认证
 // const auth =  async (ctx,next)=>{
@@ -49,5 +52,19 @@ UserRouter.delete('/followingTopics/:id', auth,checkTopicExist,unFollowTopic)
 UserRouter.get('/:id/followingTopics', listFollowingTopics)
 // 发表的问题列表
 UserRouter.get('/:id/questions', listQuestions)
+
+// 喜欢答案，再取消踩答案
+UserRouter.put('/likeAnswer/:id', auth,checkAnswerExist,likeAnswer,unDislikeAnswer)
+// 取消喜欢答案
+UserRouter.delete('/unLikeAnswer/:id', auth,checkAnswerExist,unLikeAnswer)
+// 喜欢答案列表
+UserRouter.get('/:id/likingAnswers', listLikingAnswers)
+
+// 踩答案，然后再取消赞答案
+UserRouter.put('/dislikeAnswer/:id', auth,checkAnswerExist,dislikeAnswer,unLikeAnswer)
+// 取消踩答案
+UserRouter.delete('/unDislikeAnswer/:id', auth,checkAnswerExist,unDislikeAnswer)
+// 踩答案列表
+UserRouter.get('/:id/listDisLikingAnswers', listDisLikingAnswers)
 
 module.exports = UserRouter;

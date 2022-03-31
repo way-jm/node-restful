@@ -1,5 +1,6 @@
 const User = require('../models/users.js')
 const Questions = require('../models/questions.js')
+const Answers = require('../models/answers.js')
 const jsonwebtoken =  require('jsonwebtoken')
 const {secret} = require('../config')
 
@@ -14,7 +15,7 @@ class Users {
         const {fields} = ctx.query;
         const selectFields =fields.split(';').filter(f=>f).map(f=>' +' +f).join('')
         const user =  await User.findById(ctx.params.id).select(selectFields)
-            .populate("following location employments.company employments.job educations.school educations.major")
+            .populate("following location employments.company employments.job educations.school educations.major likingAnswers")
         if(!user){
             ctx.throw(404,'用户未找到')
         }
@@ -145,6 +146,75 @@ class Users {
             ctx.throw(404,'用户不存在')
         }
         ctx.body = user.followingTopics;
+    }
+
+    // 赞答案
+    async likeAnswer(ctx,next){
+        const me =  await User.findById(ctx.state.user._id).select('+likingAnswers');
+        if(!me.likingAnswers.map(id=>id.toString()).includes(ctx.params.id)){
+            me.likingAnswers.push(ctx.params.id)
+            me.save()
+            // 递增1
+            await Answers.findByIdAndUpdate(ctx.params.id,{voteCount:1})
+
+        }
+        ctx.status = 204
+        // 踩赞互斥
+        await  next()
+    }
+    //  取消 赞答案
+    async unLikeAnswer(ctx){
+        const me =  await User.findById(ctx.state.user._id).select('+likingAnswers');
+        const index =  me.likingAnswers.map(id=>id.toString()).indexOf(ctx.params.id)
+        if(index>-1){
+            me.likingAnswers.splice(index,1)
+            me.save()
+            // 递增-1
+            await Answers.findByIdAndUpdate(ctx.params.id,{$inc:{voteCount:-1}})
+        }
+        ctx.status = 204
+    }
+    // 赞答案列表
+    async listLikingAnswers(ctx){
+        const user =  await User.findById(ctx.params.id)
+            .select('+likingAnswers')
+            .populate('likingAnswers')
+        if(!user){
+            ctx.throw(404,'用户不存在')
+        }
+        ctx.body = user.likingAnswers;
+    }
+
+    // 踩答案
+    async dislikeAnswer(ctx,next){
+        const me =  await User.findById(ctx.state.user._id).select('+dislikingAnswers');
+        if(!me.dislikingAnswers.map(id=>id.toString()).includes(ctx.params.id)){
+            me.dislikingAnswers.push(ctx.params.id)
+            me.save()
+        }
+        ctx.status = 204
+        // 踩赞互斥
+        await  next()
+    }
+    //  取消 踩答案
+    async unDislikeAnswer(ctx){
+        const me =  await User.findById(ctx.state.user._id).select('+dislikingAnswers');
+        const index =  me.dislikingAnswers.map(id=>id.toString()).indexOf(ctx.params.id)
+        if(index>-1){
+            me.dislikingAnswers.splice(index,1)
+            me.save()
+        }
+        ctx.status = 204
+    }
+    //  踩答案列表
+    async listDisLikingAnswers(ctx){
+        const user =  await User.findById(ctx.params.id)
+            .select('+dislikingAnswers')
+            .populate('dislikingAnswers')
+        if(!user){
+            ctx.throw(404,'用户不存在')
+        }
+        ctx.body = user.dislikingAnswers;
     }
     // 获取粉丝列表
     async listFollowers(ctx){
