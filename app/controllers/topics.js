@@ -2,7 +2,10 @@ const Topics = require('../models/topics.js')
 
 class TopicsCtl {
     async find(ctx) {
-        ctx.body = await Topics.find();
+        const {page_size = 10} =  ctx.query;
+        const page=Math.max(ctx.query.page * 1,1) -1;
+        const pageSize= Math.max(page_size * 1,1);
+        ctx.body = await Topics.find().limit(pageSize).skip(page * pageSize)
     }
 
     async findById(ctx) {
